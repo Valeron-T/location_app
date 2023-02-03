@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -14,7 +16,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Drone Information",
       theme: ThemeData(
-          colorScheme: ColorScheme.dark(), brightness: Brightness.dark),
+        colorScheme: ColorScheme.light(background: Color.fromARGB(255, 156, 156, 156)),
+        brightness: Brightness.light,
+        fontFamily: 'Poppins',
+      ),
       home: LogInPage(title: 'LogInPage'),
     );
   }
@@ -46,7 +51,7 @@ class LogInPage extends StatelessWidget {
           children: <Widget>[
             Text(
               'Welcome',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
             SizedBox(
               width: 200,
@@ -64,6 +69,7 @@ class LogInPage extends StatelessWidget {
               ),
             ),
             FloatingActionButton.extended(
+              heroTag: "info",
               onPressed: () {
                 if (pc.text == p) {
                   Navigator.pushReplacement(context,
@@ -99,6 +105,7 @@ class LogInPage extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
             FloatingActionButton.extended(
+              heroTag: "settings",
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return SettingPage(title: 'SettingPage');
@@ -125,16 +132,105 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        titleTextStyle: TextStyle(color: w, fontSize: 40),
-        title: Text("SETTINGS"),
-        centerTitle: true,
-        backgroundColor: b,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        titleTextStyle: TextStyle(color: b, fontSize: 40),
+        shadowColor: Colors.transparent,
+        title: Text("Settings"),
+        backgroundColor: Colors.grey[50],
       ),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ToggleSwitch(),
-        ],
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Row 1 on settings
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FractionallySizedBox(
+                widthFactor: 0.7,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: [
+                        BoxShadow(
+                            spreadRadius: 0.1,
+                            blurRadius: 4,
+                            color: Color.fromARGB(255, 211, 211, 211))
+                      ],
+                      color: Colors.grey[50]),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ToggleSwitch(),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text("Test setting 1"),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Row 2
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FractionallySizedBox(
+                widthFactor: 0.7,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: [
+                        BoxShadow(
+                            spreadRadius: 0.1,
+                            blurRadius: 4,
+                            color: Color.fromARGB(255, 211, 211, 211))
+                      ],
+                      color: Colors.grey[50]),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ToggleSwitch(),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text("Test setting 1"),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Row 3
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FractionallySizedBox(
+                widthFactor: 0.7,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: [
+                        BoxShadow(
+                            spreadRadius: 0.1,
+                            blurRadius: 4,
+                            color: Color.fromARGB(255, 211, 211, 211))
+                      ],
+                      color: Colors.grey[50]),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ToggleSwitch(),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text("Test setting 1"),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -151,18 +247,18 @@ class _State extends State<ToggleSwitch> {
   @override
   Widget build(BuildContext context) {
     return Center(
-          child: Switch(
-            value: isSwitched,
-            onChanged: (value) {
-              setState(() {
-                isSwitched = value;
-                print(isSwitched);
-              });
-            },
-            activeTrackColor: Colors.lightGreenAccent,
-            activeColor: Colors.green,
-          ),
-        );
+      child: Switch(
+        value: isSwitched,
+        onChanged: (value) {
+          setState(() {
+            isSwitched = value;
+            print(isSwitched);
+          });
+        },
+        activeTrackColor: Colors.lightGreenAccent,
+        activeColor: Colors.green,
+      ),
+    );
   }
 }
 
