@@ -89,18 +89,54 @@ class LogInPage extends StatelessWidget {
                     enableSuggestions: false,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      // border: OutlineInputBorder(),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: white),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.cyan),
+                      ),
                       fillColor: white,
+                      labelStyle: TextStyle(color: white, letterSpacing: 1.5),
+                      hintStyle: TextStyle(color: white),
+                      hoverColor: white,
                       focusColor: Colors.amber[300],
-                      prefixIcon: Icon(Icons.lock),
-                      labelText: 'PASSWORD',
+                      prefixIcon: Icon(Icons.person_rounded, color: white,),
+                      labelText: 'Username',
+                      hintText: 'Enter Username',
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              FractionallySizedBox(
+                widthFactor: 0.9,
+                child: SizedBox(
+                  child: TextField(
+                    controller: pc,
+                    obscureText: true,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: white),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.cyan),
+                      ),
+                      fillColor: white,
+                      labelStyle: TextStyle(color: white, letterSpacing: 1.5),
+                      hintStyle: TextStyle(color: white),
+                      hoverColor: white,
+                      focusColor: Colors.amber[300],
+                      prefixIcon: Icon(Icons.lock, color: white,),
+                      labelText: 'Password',
                       hintText: 'Enter Password',
                     ),
                   ),
                 ),
               ),
               SizedBox(height: 50),
-              FloatingActionButton.extended(
+              FloatingActionButton(
                 heroTag: "info",
                 onPressed: () {
                   if (pc.text == p) {
@@ -131,10 +167,10 @@ class LogInPage extends StatelessWidget {
                                 ]));
                   }
                 },
-                label: Text('Connect'),
-                icon: Icon(Icons.cloud_sync),
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: Colors.transparent,
+                shape: RoundedRectangleBorder(side: BorderSide(width: 1.5,color: white),borderRadius: BorderRadius.circular(100)),
                 foregroundColor: Colors.white,
+                child: Icon(Icons.arrow_forward_ios_rounded),
               ),
               SizedBox(height: 10),
               FloatingActionButton.extended(
