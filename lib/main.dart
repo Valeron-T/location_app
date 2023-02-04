@@ -1,7 +1,10 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'dart:math';
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
@@ -16,7 +19,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Drone Information",
       theme: ThemeData(
-        colorScheme: ColorScheme.light(background: Color.fromARGB(255, 156, 156, 156)),
+        colorScheme:
+            ColorScheme.light(background: Color.fromARGB(255, 110, 110, 110)),
         brightness: Brightness.light,
         fontFamily: 'Poppins',
       ),
@@ -25,7 +29,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-var w = Colors.white;
+var white = Colors.white;
+var w = Colors.grey[300];
 var b = Colors.black;
 var h = 'METERS';
 
@@ -39,84 +44,113 @@ class LogInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        titleTextStyle: TextStyle(color: w, fontSize: 40),
-        title: Text("DRONE CONNECTION"),
-        centerTitle: true,
-        backgroundColor: b,
-      ),
+      // appBar: AppBar(
+      //   // titleTextStyle: TextStyle(color: b),
+      //   // title: Text("DRONE CONNECTION"),
+      //   leading: Icon(Icons.android_rounded),
+      //   centerTitle: true,
+      //   shadowColor: Colors.transparent,
+      //   backgroundColor: Colors.grey[300],
+      // ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Text(
-              'Welcome',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            SizedBox(
-              width: 200,
-              child: TextField(
-                controller: pc,
-                obscureText: true,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
-                  labelText: 'PASSWORD',
-                  hintText: 'Enter Password',
+        child: Container(
+          padding: EdgeInsets.fromLTRB(50, 10, 0, 0),
+          alignment: Alignment.centerLeft,
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage("assets/images/blur-bg.jpg"),
+                  fit: BoxFit.cover)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'Drone',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 40, color: white),
+              ),
+              Text(
+                'Tracking',
+                style: TextStyle(
+                    fontWeight: FontWeight.normal, fontSize: 40, color: white),
+              ),
+              Text(
+                'Made Simple',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 40, color: white),
+              ),
+              SizedBox(height: 40),
+              FractionallySizedBox(
+                widthFactor: 0.9,
+                child: SizedBox(
+                  child: TextField(
+                    controller: pc,
+                    obscureText: true,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      // border: OutlineInputBorder(),
+                      fillColor: white,
+                      focusColor: Colors.amber[300],
+                      prefixIcon: Icon(Icons.lock),
+                      labelText: 'PASSWORD',
+                      hintText: 'Enter Password',
+                    ),
+                  ),
                 ),
               ),
-            ),
-            FloatingActionButton.extended(
-              heroTag: "info",
-              onPressed: () {
-                if (pc.text == p) {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) {
-                    return InfoPage(title: 'InfoPage');
+              SizedBox(height: 50),
+              FloatingActionButton.extended(
+                heroTag: "info",
+                onPressed: () {
+                  if (pc.text == p) {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) {
+                      return InfoPage(title: 'InfoPage');
+                    }));
+                  } else {
+                    showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                                title: const Text("Alert"),
+                                content: const Text("Wrong Password"),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(ctx).pop();
+                                    },
+                                    child: Container(
+                                      color: Colors.black,
+                                      padding: const EdgeInsets.all(14),
+                                      child: const Text("okay",
+                                          style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 240, 240, 240))),
+                                    ),
+                                  )
+                                ]));
+                  }
+                },
+                label: Text('Connect'),
+                icon: Icon(Icons.cloud_sync),
+                backgroundColor: Colors.blueAccent,
+                foregroundColor: Colors.white,
+              ),
+              SizedBox(height: 10),
+              FloatingActionButton.extended(
+                heroTag: "settings",
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return SettingPage(title: 'SettingPage');
                   }));
-                } else {
-                  showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                              title: const Text("Alert"),
-                              content: const Text("Wrong Password"),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(ctx).pop();
-                                  },
-                                  child: Container(
-                                    color: Colors.black,
-                                    padding: const EdgeInsets.all(14),
-                                    child: const Text("okay",
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 240, 240, 240))),
-                                  ),
-                                )
-                              ]));
-                }
-              },
-              label: Text('Connect'),
-              icon: Icon(Icons.cloud_sync),
-              backgroundColor: Colors.blueAccent,
-              foregroundColor: Colors.white,
-            ),
-            FloatingActionButton.extended(
-              heroTag: "settings",
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return SettingPage(title: 'SettingPage');
-                }));
-              },
-              label: Text('Settings'),
-              icon: Icon(Icons.settings),
-              backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.black,
-            )
-          ],
+                },
+                label: Text('Settings'),
+                icon: Icon(Icons.settings),
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.black,
+              )
+            ],
+          ),
         ),
       ),
       //floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -124,6 +158,7 @@ class LogInPage extends StatelessWidget {
   }
 }
 
+// Settings page
 class SettingPage extends StatelessWidget {
   SettingPage({Key? key, required this.title}) : super(key: key);
   final String title;
@@ -139,36 +174,76 @@ class SettingPage extends StatelessWidget {
         titleTextStyle: TextStyle(color: b, fontSize: 40),
         shadowColor: Colors.transparent,
         title: Text("Settings"),
-        backgroundColor: Colors.grey[50],
+        backgroundColor: Colors.grey[200],
       ),
-      body: Center(
+      body: Container(
+        padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(color: Colors.grey[200]),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FractionallySizedBox(
+                widthFactor: 0.9,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                            spreadRadius: 1.5,
+                            blurRadius: 4,
+                            color: Color.fromARGB(31, 211, 211, 211))
+                      ],
+                      color: Colors.grey[50]),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Icon(Icons.brush_rounded),
+                              SizedBox(height: 10),
+                              Text("Personalise your experience"),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
             // Row 1 on settings
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: FractionallySizedBox(
-                widthFactor: 0.7,
+                widthFactor: 0.9,
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(3),
                       boxShadow: [
                         BoxShadow(
-                            spreadRadius: 0.1,
+                            spreadRadius: 1.5,
                             blurRadius: 4,
-                            color: Color.fromARGB(255, 211, 211, 211))
+                            color: Color.fromARGB(31, 211, 211, 211))
                       ],
                       color: Colors.grey[50]),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ToggleSwitch(),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text("Test setting 1"),
-                      )
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text("Dark Theme"),
+                        ),
+                        ToggleSwitch(),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -177,26 +252,29 @@ class SettingPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: FractionallySizedBox(
-                widthFactor: 0.7,
+                widthFactor: 0.9,
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(3),
                       boxShadow: [
                         BoxShadow(
-                            spreadRadius: 0.1,
+                            spreadRadius: 1.5,
                             blurRadius: 4,
-                            color: Color.fromARGB(255, 211, 211, 211))
+                            color: Color.fromARGB(31, 211, 211, 211))
                       ],
                       color: Colors.grey[50]),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ToggleSwitch(),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text("Test setting 1"),
-                      )
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text("Distance Units"),
+                        ),
+                        ToggleSwitch(),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -205,29 +283,60 @@ class SettingPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: FractionallySizedBox(
-                widthFactor: 0.7,
+                widthFactor: 0.9,
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(3),
                       boxShadow: [
                         BoxShadow(
-                            spreadRadius: 0.1,
+                            spreadRadius: 1.5,
                             blurRadius: 4,
-                            color: Color.fromARGB(255, 211, 211, 211))
+                            color: Color.fromARGB(31, 211, 211, 211))
                       ],
                       color: Colors.grey[50]),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ToggleSwitch(),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text("Test setting 1"),
-                      )
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text("Something else"),
+                        ),
+                        ToggleSwitch(),
+                      ],
+                    ),
                   ),
                 ),
               ),
+            ),
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                            spreadRadius: 1.5,
+                            blurRadius: 4,
+                            color: Color.fromARGB(31, 211, 211, 211))
+                      ]),
+                  child: FractionallySizedBox(
+                    widthFactor: 0.8,
+                    child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: ButtonStyle(
+                            shape: MaterialStatePropertyAll(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10))),
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.black)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text("DONE"),
+                        )),
+                  )),
             ),
           ],
         ),
@@ -247,7 +356,7 @@ class _State extends State<ToggleSwitch> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Switch(
+      child: CupertinoSwitch(
         value: isSwitched,
         onChanged: (value) {
           setState(() {
@@ -255,7 +364,7 @@ class _State extends State<ToggleSwitch> {
             print(isSwitched);
           });
         },
-        activeTrackColor: Colors.lightGreenAccent,
+        trackColor: Colors.red,
         activeColor: Colors.green,
       ),
     );
