@@ -1,33 +1,85 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:drone_app/config.dart';
+import 'package:drone_app/theme.dart';
+import 'package:flutter/services.dart';
+// import 'dart:js';
 import 'dart:math';
-
+// import 'dart:ui';
+import 'package:flutter/cupertino.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+// import 'package:url_launcher/url_launcher.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  await Hive.openBox('easyTheme');
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Adds a listener which updates everytime source was updated
+    currentTheme.addListener(() {
+      print("State Changed");
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Drone Information",
-      theme: ThemeData(
-        colorScheme: ColorScheme.light(background: Color.fromARGB(255, 156, 156, 156)),
-        brightness: Brightness.light,
-        fontFamily: 'Poppins',
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: currentTheme.currentTheme(),
       home: LogInPage(title: 'LogInPage'),
+      // home: SettingPage(title: 'settings'),
     );
   }
 }
 
-var w = Colors.white;
+var white = Colors.white;
+var w = Colors.grey[300];
 var b = Colors.black;
 var h = 'METERS';
+
+class MyTheme with ChangeNotifier {
+  static bool _isDark = false;
+  final myBox = Hive.box('easyTheme');
+
+  MyTheme() {
+    if (myBox.containsKey('CurrentTheme')) {
+      _isDark = myBox.get('CurrentTheme');
+    } else {
+      myBox.put('CurrentTheme', _isDark);
+    }
+  }
+
+  switchTheme(bool curValue) {
+    notifyListeners();
+    _isDark = curValue;
+    print(_isDark);
+    myBox.put('CurrentTheme', _isDark);
+    print(myBox.get('CurrentTheme'));
+    
+  }
+
+  ThemeMode currentTheme() {
+    return _isDark ? ThemeMode.dark : ThemeMode.light;
+  }
+}
 
 class LogInPage extends StatelessWidget {
   LogInPage({Key? key, required this.title}) : super(key: key);
@@ -38,85 +90,206 @@ class LogInPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      appBar: AppBar(
-        titleTextStyle: TextStyle(color: w, fontSize: 40),
-        title: Text("DRONE CONNECTION"),
-        centerTitle: true,
-        backgroundColor: b,
-      ),
+      // resizeToAvoidBottomInset: false,
+      // appBar: AppBar(
+      //   // titleTextStyle: TextStyle(color: b),
+      //   // title: Text("DRONE CONNECTION"),
+      //   leading: Icon(Icons.android_rounded),
+      //   centerTitle: true,
+      //   shadowColor: Colors.transparent,
+      //   backgroundColor: Colors.grey[300],
+      // ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Text(
-              'Welcome',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            SizedBox(
-              width: 200,
-              child: TextField(
-                controller: pc,
-                obscureText: true,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
-                  labelText: 'PASSWORD',
-                  hintText: 'Enter Password',
-                ),
+        child: SingleChildScrollView(
+          child: Container(
+            height: height,
+            padding: EdgeInsets.fromLTRB(50, 10, 0, 0),
+            alignment: Alignment.centerLeft,
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("assets/images/blur-bg.jpg"),
+                    fit: BoxFit.cover)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'Drone',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 40,
+                        color: white),
+                  ),
+                  Text(
+                    'Tracking',
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 40,
+                        color: white),
+                  ),
+                  Text(
+                    'Made Easy',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 40,
+                        color: white),
+                  ),
+                  SizedBox(height: 40),
+                  FractionallySizedBox(
+                    widthFactor: 0.9,
+                    child: SizedBox(
+                      child: TextField(
+                        controller: pc,
+                        obscureText: true,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        decoration: InputDecoration(
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: white),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.cyan),
+                          ),
+                          fillColor: white,
+                          labelStyle:
+                              TextStyle(color: white, letterSpacing: 1.5),
+                          hintStyle: TextStyle(color: white),
+                          hoverColor: white,
+                          focusColor: Colors.amber[300],
+                          prefixIcon: Icon(
+                            Icons.person_rounded,
+                            color: white,
+                          ),
+                          labelText: 'Username',
+                          hintText: 'Enter Username',
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  FractionallySizedBox(
+                    widthFactor: 0.9,
+                    child: SizedBox(
+                      child: TextField(
+                        controller: pc,
+                        obscureText: true,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        decoration: InputDecoration(
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: white),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.cyan),
+                          ),
+                          fillColor: white,
+                          labelStyle:
+                              TextStyle(color: white, letterSpacing: 1.5),
+                          hintStyle: TextStyle(color: white),
+                          hoverColor: white,
+                          focusColor: Colors.amber[300],
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: white,
+                          ),
+                          labelText: 'Password',
+                          hintText: 'Enter Password',
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 50),
+                  FloatingActionButton(
+                    heroTag: "info",
+                    onPressed: () {
+                      if (pc.text == p) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) {
+                          return InfoPage(title: 'InfoPage');
+                        }));
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                                    title: const Text("Alert"),
+                                    content: const Text("Wrong Password"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(ctx).pop();
+                                        },
+                                        child: Container(
+                                          color: Colors.black,
+                                          padding: const EdgeInsets.all(14),
+                                          child: const Text("okay",
+                                              style: TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 240, 240, 240))),
+                                        ),
+                                      )
+                                    ]));
+                      }
+                    },
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1.5, color: white),
+                        borderRadius: BorderRadius.circular(100)),
+                    foregroundColor: Colors.white,
+                    child: Icon(Icons.arrow_forward_ios_rounded),
+                  ),
+                  SizedBox(
+                    height: height * 0.2,
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: 0.9,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "First Time ?",
+                              style: TextStyle(color: white),
+                              textAlign: TextAlign.start,
+                            ),
+                            Text(
+                              "Sign Up Now !",
+                              style: TextStyle(color: white),
+                              textAlign: TextAlign.start,
+                            )
+                          ],
+                        ),
+                        FloatingActionButton(
+                          heroTag: "settings",
+                          onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return SettingPage(title: 'SettingPage');
+                            }));
+                          },
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(width: 1.5, color: white),
+                              borderRadius: BorderRadius.circular(100)),
+                          elevation: 0,
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: white,
+                          child: Icon(Icons.settings_rounded),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
-            FloatingActionButton.extended(
-              heroTag: "info",
-              onPressed: () {
-                if (pc.text == p) {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) {
-                    return InfoPage(title: 'InfoPage');
-                  }));
-                } else {
-                  showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                              title: const Text("Alert"),
-                              content: const Text("Wrong Password"),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(ctx).pop();
-                                  },
-                                  child: Container(
-                                    color: Colors.black,
-                                    padding: const EdgeInsets.all(14),
-                                    child: const Text("okay",
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 240, 240, 240))),
-                                  ),
-                                )
-                              ]));
-                }
-              },
-              label: Text('Connect'),
-              icon: Icon(Icons.cloud_sync),
-              backgroundColor: Colors.blueAccent,
-              foregroundColor: Colors.white,
-            ),
-            FloatingActionButton.extended(
-              heroTag: "settings",
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return SettingPage(title: 'SettingPage');
-                }));
-              },
-              label: Text('Settings'),
-              icon: Icon(Icons.settings),
-              backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.black,
-            )
-          ],
+          ),
         ),
       ),
       //floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -124,51 +297,121 @@ class LogInPage extends StatelessWidget {
   }
 }
 
-class SettingPage extends StatelessWidget {
+// Settings page
+class SettingPage extends StatefulWidget {
   SettingPage({Key? key, required this.title}) : super(key: key);
   final String title;
+
+  @override
+  State<SettingPage> createState() => _SettingPageState();
+}
+
+class _SettingPageState extends State<SettingPage> {
+  bool isDarkTheme = Hive.box('easyTheme').get('CurrentTheme');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
+          icon: Icon(Icons.arrow_back_ios_rounded,
+              color: Theme.of(context).iconTheme.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        titleTextStyle: TextStyle(color: b, fontSize: 40),
+        titleTextStyle: Theme.of(context).textTheme.headlineMedium,
         shadowColor: Colors.transparent,
         title: Text("Settings"),
-        backgroundColor: Colors.grey[50],
+        backgroundColor: Theme.of(context).colorScheme.background,
       ),
-      body: Center(
+      body: Container(
+        padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+        alignment: Alignment.center,
+        decoration:
+            BoxDecoration(color: Theme.of(context).colorScheme.background),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // User instructions
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FractionallySizedBox(
+                widthFactor: 0.9,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                            spreadRadius: 1.5,
+                            blurRadius: 4,
+                            color: Color.fromARGB(31, 211, 211, 211))
+                      ],
+                      color: Theme.of(context).colorScheme.primary),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.brush_rounded,
+                                color: Theme.of(context).iconTheme.color,
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                "Personalise your experience",
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
             // Row 1 on settings
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: FractionallySizedBox(
-                widthFactor: 0.7,
+                widthFactor: 0.9,
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      boxShadow: [
-                        BoxShadow(
-                            spreadRadius: 0.1,
-                            blurRadius: 4,
-                            color: Color.fromARGB(255, 211, 211, 211))
-                      ],
-                      color: Colors.grey[50]),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ToggleSwitch(),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text("Test setting 1"),
-                      )
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: [
+                      BoxShadow(
+                          spreadRadius: 1.5,
+                          blurRadius: 4,
+                          color: Color.fromARGB(31, 211, 211, 211))
                     ],
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text("Dark Theme"),
+                        ),
+                        Center(
+                          child: CupertinoSwitch(
+                            value: isDarkTheme,
+                            onChanged: (value) {
+                              // Value is true
+                              isDarkTheme = value;
+                              print(isDarkTheme);
+                              currentTheme.switchTheme(value);
+                            },
+                            trackColor: Colors.red,
+                            activeColor: Colors.green,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -177,26 +420,29 @@ class SettingPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: FractionallySizedBox(
-                widthFactor: 0.7,
+                widthFactor: 0.9,
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(3),
                       boxShadow: [
                         BoxShadow(
-                            spreadRadius: 0.1,
+                            spreadRadius: 1.5,
                             blurRadius: 4,
-                            color: Color.fromARGB(255, 211, 211, 211))
+                            color: Color.fromARGB(31, 211, 211, 211))
                       ],
-                      color: Colors.grey[50]),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ToggleSwitch(),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text("Test setting 1"),
-                      )
-                    ],
+                      color: Theme.of(context).colorScheme.primary),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text("Distance Units"),
+                        ),
+                        ToggleSwitch(),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -205,29 +451,62 @@ class SettingPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: FractionallySizedBox(
-                widthFactor: 0.7,
+                widthFactor: 0.9,
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      boxShadow: [
-                        BoxShadow(
-                            spreadRadius: 0.1,
-                            blurRadius: 4,
-                            color: Color.fromARGB(255, 211, 211, 211))
-                      ],
-                      color: Colors.grey[50]),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ToggleSwitch(),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text("Test setting 1"),
-                      )
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: [
+                      BoxShadow(
+                          spreadRadius: 1.5,
+                          blurRadius: 4,
+                          color: Color.fromARGB(31, 211, 211, 211))
                     ],
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text("Something else"),
+                        ),
+                        ToggleSwitch(),
+                      ],
+                    ),
                   ),
                 ),
               ),
+            ),
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                            spreadRadius: 1.5,
+                            blurRadius: 4,
+                            color: Color.fromARGB(31, 211, 211, 211))
+                      ]),
+                  child: FractionallySizedBox(
+                    widthFactor: 0.8,
+                    child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: ButtonStyle(
+                            shape: MaterialStatePropertyAll(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10))),
+                            backgroundColor: MaterialStateProperty.all(
+                              Theme.of(context).colorScheme.secondary,
+                            )),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text("DONE"),
+                        )),
+                  )),
             ),
           ],
         ),
@@ -247,7 +526,7 @@ class _State extends State<ToggleSwitch> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Switch(
+      child: CupertinoSwitch(
         value: isSwitched,
         onChanged: (value) {
           setState(() {
@@ -255,7 +534,7 @@ class _State extends State<ToggleSwitch> {
             print(isSwitched);
           });
         },
-        activeTrackColor: Colors.lightGreenAccent,
+        trackColor: Colors.red,
         activeColor: Colors.green,
       ),
     );
@@ -311,28 +590,6 @@ class InfoPage extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                /*Container(
-                  color: Colors.grey,
-                  width: MediaQuery.of(context).size.width/2-4,
-              height: MediaQuery.of(context).size.height-56-4,
-              alignment: Alignment.center,
-                  
-                child: FloatingActionButton.extended(
-                onPressed: () async {
-                    String url = "https://www.google.com/maps/search/?api=1&query=lat,long";
-                    var urllaunchable = await canLaunch(url); //canLaunch is from url_launcher package
-                    if(urllaunchable){
-                        await launch(url); //launch is from url_launcher package to launch URL
-                    }else{
-                       print("URL can't be launched.");
-                    }
-                  },
-              label: Text('Location'),
-              backgroundColor: Color.fromARGB(255, 255, 255, 255),
-              foregroundColor: Colors.redAccent,
-              icon: Icon(Icons.location_pin),
-              ),
-            ),*/
                 Container(
                     width: MediaQuery.of(context).size.width / 2 - 4,
                     height: MediaQuery.of(context).size.height - 56 - 10,
