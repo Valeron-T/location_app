@@ -1,30 +1,51 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:drone_app/config.dart';
+import 'package:drone_app/theme.dart';
+import 'package:flutter/services.dart';
 // import 'dart:js';
 import 'dart:math';
 // import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 // import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+// import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 // import 'package:url_launcher/url_launcher.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  await Hive.openBox('easyTheme');
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Adds a listener which updates everytime source was updated
+    currentTheme.addListener(() {
+      print("State Changed");
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Drone Information",
-      theme: ThemeData(
-        colorScheme:
-            ColorScheme.light(background: Color.fromARGB(255, 110, 110, 110)),
-        brightness: Brightness.light,
-        fontFamily: 'Poppins',
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: currentTheme.currentTheme(),
       home: LogInPage(title: 'LogInPage'),
+      // home: SettingPage(title: 'settings'),
     );
   }
 }
@@ -33,6 +54,32 @@ var white = Colors.white;
 var w = Colors.grey[300];
 var b = Colors.black;
 var h = 'METERS';
+
+class MyTheme with ChangeNotifier {
+  static bool _isDark = false;
+  final myBox = Hive.box('easyTheme');
+
+  MyTheme() {
+    if (myBox.containsKey('CurrentTheme')) {
+      _isDark = myBox.get('CurrentTheme');
+    } else {
+      myBox.put('CurrentTheme', _isDark);
+    }
+  }
+
+  switchTheme(bool curValue) {
+    notifyListeners();
+    _isDark = curValue;
+    print(_isDark);
+    myBox.put('CurrentTheme', _isDark);
+    print(myBox.get('CurrentTheme'));
+    
+  }
+
+  ThemeMode currentTheme() {
+    return _isDark ? ThemeMode.dark : ThemeMode.light;
+  }
+}
 
 class LogInPage extends StatelessWidget {
   LogInPage({Key? key, required this.title}) : super(key: key);
@@ -189,13 +236,16 @@ class LogInPage extends StatelessWidget {
                       }
                     },
                     backgroundColor: Colors.transparent,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
                         side: BorderSide(width: 1.5, color: white),
                         borderRadius: BorderRadius.circular(100)),
                     foregroundColor: Colors.white,
                     child: Icon(Icons.arrow_forward_ios_rounded),
                   ),
-                  SizedBox(height: height*0.2,),
+                  SizedBox(
+                    height: height * 0.2,
+                  ),
                   FractionallySizedBox(
                     widthFactor: 0.9,
                     child: Row(
@@ -228,6 +278,7 @@ class LogInPage extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                               side: BorderSide(width: 1.5, color: white),
                               borderRadius: BorderRadius.circular(100)),
+                          elevation: 0,
                           backgroundColor: Colors.transparent,
                           foregroundColor: white,
                           child: Icon(Icons.settings_rounded),
@@ -247,29 +298,39 @@ class LogInPage extends StatelessWidget {
 }
 
 // Settings page
-class SettingPage extends StatelessWidget {
+class SettingPage extends StatefulWidget {
   SettingPage({Key? key, required this.title}) : super(key: key);
   final String title;
+
+  @override
+  State<SettingPage> createState() => _SettingPageState();
+}
+
+class _SettingPageState extends State<SettingPage> {
+  bool isDarkTheme = Hive.box('easyTheme').get('CurrentTheme');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
+          icon: Icon(Icons.arrow_back_ios_rounded,
+              color: Theme.of(context).iconTheme.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        titleTextStyle: TextStyle(color: b, fontSize: 40),
+        titleTextStyle: Theme.of(context).textTheme.headlineMedium,
         shadowColor: Colors.transparent,
         title: Text("Settings"),
-        backgroundColor: Colors.grey[200],
+        backgroundColor: Theme.of(context).colorScheme.background,
       ),
       body: Container(
         padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
         alignment: Alignment.center,
-        decoration: BoxDecoration(color: Colors.grey[200]),
+        decoration:
+            BoxDecoration(color: Theme.of(context).colorScheme.background),
         child: Column(
           children: [
+            // User instructions
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: FractionallySizedBox(
@@ -283,7 +344,7 @@ class SettingPage extends StatelessWidget {
                             blurRadius: 4,
                             color: Color.fromARGB(31, 211, 211, 211))
                       ],
-                      color: Colors.grey[50]),
+                      color: Theme.of(context).colorScheme.primary),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -293,9 +354,15 @@ class SettingPage extends StatelessWidget {
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
                             children: [
-                              Icon(Icons.brush_rounded),
+                              Icon(
+                                Icons.brush_rounded,
+                                color: Theme.of(context).iconTheme.color,
+                              ),
                               SizedBox(height: 10),
-                              Text("Personalise your experience"),
+                              Text(
+                                "Personalise your experience",
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
                             ],
                           ),
                         ),
@@ -312,14 +379,15 @@ class SettingPage extends StatelessWidget {
                 widthFactor: 0.9,
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      boxShadow: [
-                        BoxShadow(
-                            spreadRadius: 1.5,
-                            blurRadius: 4,
-                            color: Color.fromARGB(31, 211, 211, 211))
-                      ],
-                      color: Colors.grey[50]),
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: [
+                      BoxShadow(
+                          spreadRadius: 1.5,
+                          blurRadius: 4,
+                          color: Color.fromARGB(31, 211, 211, 211))
+                    ],
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -329,7 +397,19 @@ class SettingPage extends StatelessWidget {
                           padding: const EdgeInsets.all(16.0),
                           child: Text("Dark Theme"),
                         ),
-                        ToggleSwitch(),
+                        Center(
+                          child: CupertinoSwitch(
+                            value: isDarkTheme,
+                            onChanged: (value) {
+                              // Value is true
+                              isDarkTheme = value;
+                              print(isDarkTheme);
+                              currentTheme.switchTheme(value);
+                            },
+                            trackColor: Colors.red,
+                            activeColor: Colors.green,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -350,7 +430,7 @@ class SettingPage extends StatelessWidget {
                             blurRadius: 4,
                             color: Color.fromARGB(31, 211, 211, 211))
                       ],
-                      color: Colors.grey[50]),
+                      color: Theme.of(context).colorScheme.primary),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -374,14 +454,15 @@ class SettingPage extends StatelessWidget {
                 widthFactor: 0.9,
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      boxShadow: [
-                        BoxShadow(
-                            spreadRadius: 1.5,
-                            blurRadius: 4,
-                            color: Color.fromARGB(31, 211, 211, 211))
-                      ],
-                      color: Colors.grey[50]),
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: [
+                      BoxShadow(
+                          spreadRadius: 1.5,
+                          blurRadius: 4,
+                          color: Color.fromARGB(31, 211, 211, 211))
+                    ],
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -418,8 +499,9 @@ class SettingPage extends StatelessWidget {
                             shape: MaterialStatePropertyAll(
                                 RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10))),
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.black)),
+                            backgroundColor: MaterialStateProperty.all(
+                              Theme.of(context).colorScheme.secondary,
+                            )),
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
                           child: Text("DONE"),
@@ -508,28 +590,6 @@ class InfoPage extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                /*Container(
-                  color: Colors.grey,
-                  width: MediaQuery.of(context).size.width/2-4,
-              height: MediaQuery.of(context).size.height-56-4,
-              alignment: Alignment.center,
-                  
-                child: FloatingActionButton.extended(
-                onPressed: () async {
-                    String url = "https://www.google.com/maps/search/?api=1&query=lat,long";
-                    var urllaunchable = await canLaunch(url); //canLaunch is from url_launcher package
-                    if(urllaunchable){
-                        await launch(url); //launch is from url_launcher package to launch URL
-                    }else{
-                       print("URL can't be launched.");
-                    }
-                  },
-              label: Text('Location'),
-              backgroundColor: Color.fromARGB(255, 255, 255, 255),
-              foregroundColor: Colors.redAccent,
-              icon: Icon(Icons.location_pin),
-              ),
-            ),*/
                 Container(
                     width: MediaQuery.of(context).size.width / 2 - 4,
                     height: MediaQuery.of(context).size.height - 56 - 10,
