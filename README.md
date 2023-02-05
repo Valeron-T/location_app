@@ -1,6 +1,6 @@
 # location_app
 
-A new Flutter project.
+An app to display the location of compatible drones in real time.
 
 ## Getting Started
 
