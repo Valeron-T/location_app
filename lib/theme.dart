@@ -15,10 +15,19 @@ var green = Color(0xFF4CAF50);
 var lightTheme = ThemeData(
   textTheme: TextTheme(bodyMedium: TextStyle(color: black)),
   iconTheme: IconThemeData(color: black),
-  colorScheme:
-      ColorScheme.light(background: darkGrey, primaryContainer: lightBlack ,primary: white, secondary: black),
+  colorScheme: ColorScheme.light(
+      background: darkGrey,
+      primaryContainer: lightBlack,
+      primary: white,
+      secondary: black),
   brightness: Brightness.light,
   fontFamily: 'Poppins',
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    shape: RoundedRectangleBorder(
+      side: BorderSide(width: 1.5, color: white),
+      borderRadius: BorderRadius.circular(100),
+    ),
+  ),
 );
 
 // Dark Theme
@@ -26,7 +35,16 @@ var darkTheme = ThemeData(
   textTheme: TextTheme(bodyMedium: TextStyle(color: white)),
   iconTheme: IconThemeData(color: white),
   colorScheme: ColorScheme.dark(
-      background: black, primary: lightBlack, primaryContainer: lightBlack, secondary: white),
+      background: black,
+      primary: lightBlack,
+      primaryContainer: lightBlack,
+      secondary: white),
   brightness: Brightness.dark,
   fontFamily: 'Poppins',
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    shape: RoundedRectangleBorder(
+      side: BorderSide(width: 1.5, color: white),
+      borderRadius: BorderRadius.circular(100),
+    ),
+  ),
 );
