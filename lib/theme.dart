@@ -18,6 +18,7 @@ var lightTheme = ThemeData(
   colorScheme: ColorScheme.light(
       background: darkGrey,
       primaryContainer: lightBlack,
+      secondaryContainer: Color(0xFF6E6E6E),
       primary: white,
       secondary: black),
   brightness: Brightness.light,
@@ -38,6 +39,7 @@ var darkTheme = ThemeData(
       background: black,
       primary: lightBlack,
       primaryContainer: lightBlack,
+      secondaryContainer: lightBlack,
       secondary: white),
   brightness: Brightness.dark,
   fontFamily: 'Poppins',
