@@ -40,6 +40,8 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   flutter_launcher_icons: ^0.11.0
+  syncfusion_flutter_gauges: ^20.4.49
+  google_maps_flutter: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +87,10 @@ flutter:
       fonts:
         - asset: assets/fonts/Poppins-Light.ttf
         - asset: assets/fonts/Poppins-Bold.ttf
+
+    - family: Digi
+      fonts:
+        - asset: assets/fonts/DS-DIGI.TTF
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
