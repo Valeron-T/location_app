@@ -1,4 +1,6 @@
 // Login page
+// ignore_for_file: prefer_const_constructors
+
 import 'package:drone_app/main.dart';
 import 'package:drone_app/settings.dart';
 import 'package:drone_app/theme.dart';

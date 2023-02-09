@@ -3,7 +3,7 @@
 
 import 'package:drone_app/config.dart';
 import 'package:drone_app/login.dart';
-import 'package:drone_app/settings.dart';
+// import 'package:drone_app/settings.dart';
 import 'package:drone_app/theme.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
@@ -24,6 +24,8 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
