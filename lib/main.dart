@@ -342,35 +342,38 @@ class InfoPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height / 5,
-                    width: MediaQuery.of(context).size.width - 20,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(15),
-                        color: Theme.of(context).colorScheme.primaryContainer),
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: FloatingActionButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            shape: Theme.of(context)
-                                .floatingActionButtonTheme
-                                .shape,
-                            elevation: 0,
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: white,
-                            child: Icon(Icons.arrow_back_ios_new_rounded),
-                          ),
-                        )
-                      ],
-                    ),
-                  )
-                ],
+              Transform.translate(
+                offset: Offset(0, MediaQuery.of(context).viewPadding.top+10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height / 5,
+                      width: MediaQuery.of(context).size.width-30,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(15),
+                          color: Theme.of(context).colorScheme.primaryContainer),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: FloatingActionButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              shape: Theme.of(context)
+                                  .floatingActionButtonTheme
+                                  .shape,
+                              elevation: 0,
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: white,
+                              child: Icon(Icons.arrow_back_ios_new_rounded),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
               Row(
                 children: [
