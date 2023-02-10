@@ -117,74 +117,64 @@ class LogInPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 50),
-                  FloatingActionButton(
-                    heroTag: "info",
-                    onPressed: () {
-                      if (pc.text == p) {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return InfoPage(title: 'InfoPage');
-                        }));
-                      } else {
-                        showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(32.0))),
-                                    title: const Text("Alert"),
-                                    content: const Text("Wrong Password"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(ctx).pop();
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primaryContainer),
-                                          padding: const EdgeInsets.all(14),
-                                          child: const Text("OK",
-                                              style: TextStyle(
-                                                  color: Color.fromARGB(
-                                                      255, 240, 240, 240))),
-                                        ),
-                                      )
-                                    ]));
-                      }
-                    },
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    shape: Theme.of(context).floatingActionButtonTheme.shape,
-                    foregroundColor: Colors.white,
-                    child: Icon(Icons.arrow_forward_ios_rounded),
-                  ),
-                  SizedBox(
-                    height: height * 0.2,
-                  ),
+                  SizedBox(height: 52),
+
+                  // SizedBox(
+                  //   height: height * 0.2,
+                  // ),
                   FractionallySizedBox(
                     widthFactor: 0.9,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              "First Time ?",
-                              style: TextStyle(color: white),
-                              textAlign: TextAlign.start,
-                            ),
-                            Text(
-                              "Sign Up Now !",
-                              style: TextStyle(color: white),
-                              textAlign: TextAlign.start,
-                            )
-                          ],
+                        FloatingActionButton(
+                          heroTag: "info",
+                          onPressed: () {
+                            if (pc.text == p) {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return InfoPage(title: 'InfoPage');
+                              }));
+                            } else {
+                              showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(32.0))),
+                                          title: const Text("Alert"),
+                                          content: const Text("Wrong Password"),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(ctx).pop();
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primaryContainer),
+                                                padding:
+                                                    const EdgeInsets.all(14),
+                                                child: const Text("OK",
+                                                    style: TextStyle(
+                                                        color: Color.fromARGB(
+                                                            255,
+                                                            240,
+                                                            240,
+                                                            240))),
+                                              ),
+                                            )
+                                          ]));
+                            }
+                          },
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
+                          shape:
+                              Theme.of(context).floatingActionButtonTheme.shape,
+                          foregroundColor: Colors.white,
+                          child: Icon(Icons.arrow_forward_ios_rounded),
                         ),
                         FloatingActionButton(
                           heroTag: "settings",
@@ -203,7 +193,34 @@ class LogInPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                  )
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: 0.9,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top:48.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "First Time ?",
+                                style: TextStyle(color: white),
+                                textAlign: TextAlign.start,
+                              ),
+                              Text(
+                                "Sign Up Now !",
+                                style: TextStyle(color: white),
+                                textAlign: TextAlign.start,
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
