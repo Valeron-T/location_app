@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'dart:async';
-
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:drone_app/config.dart';
 import 'package:drone_app/login.dart';
 // import 'package:drone_app/settings.dart';
@@ -77,6 +77,12 @@ class MyTheme with ChangeNotifier {
     _isDark = curValue;
     print(_isDark);
     myBox.put('CurrentTheme', _isDark);
+    if (_isDark == true) {
+      myBox.put('MapTheme', 'dark');
+    } else {
+      myBox.put('MapTheme', 'light');
+    }
+    print(myBox.get('MapTheme'));
     print(myBox.get('CurrentTheme'));
   }
 
@@ -92,9 +98,42 @@ class MapSample extends StatefulWidget {
   State<MapSample> createState() => MapSampleState();
 }
 
-class MapSampleState extends State<MapSample> {
+class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
+  String? _darkMapStyle;
+  String? _lightMapStyle;
+
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _loadMapStyles();
+  }
+
+  Future _loadMapStyles() async {
+    _darkMapStyle = await rootBundle.loadString('assets/map_styles/dark.json');
+    _lightMapStyle =
+        await rootBundle.loadString('assets/map_styles/light.json');
+  }
+
+  Future _setMapStyle() async {
+    final controller = await _controller.future;
+    final myBox = Hive.box('easyTheme');
+    print(myBox.get('MapTheme'));
+    if (myBox.get('MapTheme') == 'dark') {
+      controller.setMapStyle(_darkMapStyle);
+    } else {
+      controller.setMapStyle(_lightMapStyle);
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(19.076090, 72.877426),
@@ -114,6 +153,7 @@ class MapSampleState extends State<MapSample> {
       initialCameraPosition: _kGooglePlex,
       onMapCreated: (GoogleMapController controller) {
         _controller.complete(controller);
+        _setMapStyle();
       },
     );
   }
@@ -485,7 +525,6 @@ class InfoPage extends StatelessWidget {
             ],
           ),
         ),
-        
       ],
     );
   }
