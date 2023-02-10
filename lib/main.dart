@@ -138,6 +138,7 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(19.076090, 72.877426),
     zoom: 14.4746,
+    tilt: 90,
   );
 
   static const CameraPosition _kLake = CameraPosition(
@@ -149,6 +150,7 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return GoogleMap(
+      compassEnabled: false,
       mapType: MapType.normal,
       initialCameraPosition: _kGooglePlex,
       onMapCreated: (GoogleMapController controller) {
@@ -163,32 +165,6 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
     controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
   }
 }
-
-// class ToggleSwitch extends StatefulWidget {
-//   @override
-//   _State createState() => _State();
-// }
-
-// class _State extends State<ToggleSwitch> {
-//   bool isSwitched = false;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: CupertinoSwitch(
-//         value: isSwitched,
-//         onChanged: (value) {
-//           setState(() {
-//             isSwitched = value;
-//             print(isSwitched);
-//           });
-//         },
-//         trackColor: Colors.red,
-//         activeColor: Colors.green,
-//       ),
-//     );
-//   }
-// }
 
 Color bc(int b) {
   if (b >= 75) {
@@ -343,18 +319,20 @@ class InfoPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Transform.translate(
-                offset: Offset(0, MediaQuery.of(context).viewPadding.top+10),
+                offset: Offset(0, MediaQuery.of(context).viewPadding.top + 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      height: MediaQuery.of(context).size.height / 5,
-                      width: MediaQuery.of(context).size.width-30,
+                      height: MediaQuery.of(context).size.height / 5.5,
+                      width: MediaQuery.of(context).size.width - 30,
                       decoration: BoxDecoration(
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.circular(15),
-                          color: Theme.of(context).colorScheme.primaryContainer),
+                          color:
+                              Theme.of(context).colorScheme.primaryContainer),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(left: 16.0),
@@ -368,6 +346,76 @@ class InfoPage extends StatelessWidget {
                               foregroundColor: white,
                               child: Icon(Icons.arrow_back_ios_new_rounded),
                             ),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Sensor Status",
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Card(
+                                    shadowColor: Colors.transparent,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
+                                    child: Chip(
+                                      label: Text("36 C"),
+                                      avatar: Icon(Icons.thermostat_rounded),
+                                    ),
+                                  ),
+                                  Card(
+                                    shadowColor: Colors.transparent,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
+                                    child: Chip(
+                                      label: Text("Strong"),
+                                      avatar: Icon(Icons.wifi),
+                                    ),
+                                  ),
+                                  Card(
+                                    shadowColor: Colors.transparent,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
+                                    child: Chip(
+                                      label: Text("20 mph"),
+                                      avatar: Icon(Icons.air_rounded),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Card(
+                                    shadowColor: Colors.transparent,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
+                                    child: Chip(
+                                      label: Text("2 / 5"),
+                                      avatar: Icon(Icons.satellite_alt_rounded),
+                                    ),
+                                  ),
+                                  Card(
+                                    shadowColor: Colors.transparent,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
+                                    child: Chip(
+                                      label: Text("On"),
+                                      avatar: Icon(Icons.hdr_auto_rounded),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           )
                         ],
                       ),
