@@ -6,6 +6,8 @@ import 'package:drone_app/config.dart';
 import 'package:drone_app/login.dart';
 // import 'package:drone_app/settings.dart';
 import 'package:drone_app/theme.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:location/location.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'dart:js';
@@ -106,6 +108,8 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    getCurrentLocation();
+    getPolyPoints();
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadMapStyles();
@@ -146,23 +150,86 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
 
-  @override
-  Widget build(BuildContext context) {
-    return GoogleMap(
-      compassEnabled: false,
-      mapType: MapType.normal,
-      initialCameraPosition: _kGooglePlex,
-      onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
-        _setMapStyle();
-      },
-    );
+  static double sourceLat = 19.076090;
+  static double sourceLong = 72.877426;
+  static double destnLat = 19.076090 + 0.01;
+  static double destnLong = 72.877426 + 0.01;
+
+  List<LatLng> polylineCoordinates = [];
+  LocationData? currentLocation;
+
+  void getCurrentLocation() {
+    Location location = Location();
+
+    location.getLocation().then((value) {
+      currentLocation = value;
+    });
+
+    location.onLocationChanged.listen((newLoc) {
+      currentLocation = newLoc;
+
+      setState(() {});
+    });
   }
 
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+  void getPolyPoints() async {
+    PolylinePoints polylinePoints = PolylinePoints();
+
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      "AIzaSyCy1mIpoAJ42vr-nRAcBukxBUZNZqgR9J4",
+      PointLatLng(sourceLat, sourceLong),
+      PointLatLng(destnLat, destnLong),
+    );
+
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        print(point.latitude);
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+
+      setState(() {});
+    }
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return currentLocation == null
+        ? Center(
+            child: Container(
+                child: Text(
+            "Loading",
+            style: Theme.of(context).textTheme.displayMedium,
+          )))
+        : GoogleMap(
+            compassEnabled: false,
+            mapType: MapType.normal,
+            initialCameraPosition: _kGooglePlex,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+              _setMapStyle();
+            },
+            markers: {
+              Marker(
+                  markerId: MarkerId("current"),
+                  position: LatLng(
+                      currentLocation!.latitude!, currentLocation!.longitude!)),
+              Marker(
+                  markerId: MarkerId("source"),
+                  position: LatLng(sourceLat, sourceLong)),
+              Marker(
+                  markerId: MarkerId("desn"),
+                  position: LatLng(destnLat, destnLong)),
+            },
+            polylines: {
+              Polyline(
+                polylineId: PolylineId("route"),
+                points: polylineCoordinates,
+                color: Colors.white,
+              )
+            },
+          );
+  }
+
 }
 
 Color bc(int b) {
@@ -490,7 +557,11 @@ class InfoPage extends StatelessWidget {
                             alignment: Alignment.center,
                             child: ShaderMask(
                               shaderCallback: (bounds) => LinearGradient(
-                                colors: [Colors.red, Colors.yellow, Colors.green],
+                                colors: [
+                                  Colors.red,
+                                  Colors.yellow,
+                                  Colors.green
+                                ],
                                 stops: [0.1, 0.3, 0.5],
                                 tileMode: TileMode.mirror,
                                 transform: GradientRotation(-3.1412 / 2),
