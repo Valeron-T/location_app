@@ -361,7 +361,12 @@ class InfoPage extends StatelessWidget {
                       height: MediaQuery.of(context).size.height / 5.5,
                       width: MediaQuery.of(context).size.width - 30,
                       decoration: BoxDecoration(
-                          boxShadow: [BoxShadow(color: Colors.black54, spreadRadius: 3, blurRadius: 15)],
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black54,
+                                spreadRadius: 3,
+                                blurRadius: 15)
+                          ],
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.circular(15),
                           color:
@@ -465,7 +470,12 @@ class InfoPage extends StatelessWidget {
                       transform: Matrix4.translationValues(0, 18.0, 0.0),
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
-                          boxShadow: [BoxShadow(color: Colors.black54, spreadRadius: 5, blurRadius: 20)],
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black54,
+                                spreadRadius: 5,
+                                blurRadius: 20)
+                          ],
                           color: Theme.of(context).colorScheme.primaryContainer,
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.all(
@@ -474,14 +484,27 @@ class InfoPage extends StatelessWidget {
                       child: Stack(
                         children: [
                           Container(
+                            transform: Matrix4.translationValues(0, -5.0, 0.0),
                             height: MediaQuery.of(context).size.height / 5.5,
                             width: MediaQuery.of(context).size.width,
                             alignment: Alignment.center,
-                            child: Icon(
-                              Icons.battery_6_bar_rounded,
-                              color: Colors.white,
-                              size: 100,
-                              shadows: [BoxShadow(color: Colors.black54, spreadRadius: 2, blurRadius: 10)],
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [Colors.red, Colors.yellow, Colors.green],
+                                stops: [0.1, 0.3, 0.5],
+                                tileMode: TileMode.mirror,
+                                transform: GradientRotation(-3.1412 / 2),
+                              ).createShader(bounds),
+                              child: Icon(
+                                Icons.battery_4_bar_rounded,
+                                size: 100,
+                                shadows: [
+                                  BoxShadow(
+                                      color: Colors.black54,
+                                      spreadRadius: 2,
+                                      blurRadius: 10)
+                                ],
+                              ),
                             ),
                           ),
                           Row(
@@ -492,7 +515,12 @@ class InfoPage extends StatelessWidget {
                                     Matrix4.translationValues(-25, 5.0, 0.0),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  boxShadow: [BoxShadow(color: Colors.black54, spreadRadius: 3, blurRadius: 15)],
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black54,
+                                        spreadRadius: 3,
+                                        blurRadius: 15)
+                                  ],
                                   color:
                                       Theme.of(context).colorScheme.background,
                                 ),
@@ -582,7 +610,12 @@ class InfoPage extends StatelessWidget {
                                     5.0,
                                     0.0),
                                 decoration: BoxDecoration(
-                                  boxShadow: [BoxShadow(color: Colors.black54, spreadRadius: 3, blurRadius: 15)],
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black54,
+                                        spreadRadius: 3,
+                                        blurRadius: 15)
+                                  ],
                                   shape: BoxShape.circle,
                                   color:
                                       Theme.of(context).colorScheme.background,
