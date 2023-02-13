@@ -17,6 +17,20 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   bool isDarkTheme = Hive.box('easyTheme').get('CurrentTheme');
 
+  static bool checkIfTempExists() {
+    final myBox = Hive.box('easyTheme');
+    if (myBox.containsKey('isCelsius')) {
+      print("exist");
+      return myBox.get('isCelsius');
+    } else {
+      myBox.put('isCelsius', true);
+    }
+    print(myBox.get('isCelsius'));
+    return myBox.get('isCelsius');
+  }
+
+  bool isCelsius = checkIfTempExists();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,19 +160,20 @@ class _SettingPageState extends State<SettingPage> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: Text("Distance Units"),
+                          child: Text("Use Fahreinheit"),
                         ),
                         CupertinoSwitch(
-                            value: isDarkTheme,
-                            onChanged: (value) {
-                              // Value is true
-                              // isDarkTheme = value;
-                              // print(isDarkTheme);
-                              // currentTheme.switchTheme(value);
-                            },
-                            trackColor: Colors.red,
-                            activeColor: Colors.green,
-                          ),
+                          value: isCelsius,
+                          onChanged: (value2) {
+                            setState(() {
+                              isCelsius = value2;
+                            });
+                            final myBox = Hive.box('easyTheme');
+                            myBox.put('isCelsius', isCelsius);
+                          },
+                          trackColor: Colors.red,
+                          activeColor: Colors.green,
+                        ),
                       ],
                     ),
                   ),
@@ -191,16 +206,16 @@ class _SettingPageState extends State<SettingPage> {
                           child: Text("Something else"),
                         ),
                         CupertinoSwitch(
-                            value: isDarkTheme,
-                            onChanged: (value) {
-                              // Value is true
-                              // isDarkTheme = value;
-                              // print(isDarkTheme);
-                              // currentTheme.switchTheme(value);
-                            },
-                            trackColor: Colors.red,
-                            activeColor: Colors.green,
-                          ),
+                          value: isDarkTheme,
+                          onChanged: (value) {
+                            // Value is true
+                            // isDarkTheme = value;
+                            // print(isDarkTheme);
+                            // currentTheme.switchTheme(value);
+                          },
+                          trackColor: Colors.red,
+                          activeColor: Colors.green,
+                        ),
                       ],
                     ),
                   ),

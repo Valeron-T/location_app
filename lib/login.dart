@@ -61,6 +61,7 @@ class LogInPage extends StatelessWidget {
                     widthFactor: 0.9,
                     child: SizedBox(
                       child: TextField(
+                        style: TextStyle(color: white),
                         controller: uname,
                         decoration: InputDecoration(
                           enabledBorder: UnderlineInputBorder(
@@ -74,7 +75,7 @@ class LogInPage extends StatelessWidget {
                               TextStyle(color: white, letterSpacing: 1.5),
                           hintStyle: TextStyle(color: white),
                           hoverColor: white,
-                          focusColor: Colors.amber[300],
+                          focusColor: white,
                           prefixIcon: Icon(
                             Icons.person_rounded,
                             color: white,
@@ -90,6 +91,7 @@ class LogInPage extends StatelessWidget {
                     widthFactor: 0.9,
                     child: SizedBox(
                       child: TextField(
+                        style: TextStyle(color: white),
                         controller: pc,
                         obscureText: true,
                         enableSuggestions: false,
@@ -130,7 +132,7 @@ class LogInPage extends StatelessWidget {
                         FloatingActionButton(
                           heroTag: "info",
                           onPressed: () {
-                            if (pc.text == p) {
+                            if (pc.text == p && uname.text == p) {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
                                 return InfoPage(title: 'InfoPage');
