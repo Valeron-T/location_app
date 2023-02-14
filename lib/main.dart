@@ -6,6 +6,8 @@ import 'package:drone_app/config.dart';
 import 'package:drone_app/login.dart';
 // import 'package:drone_app/settings.dart';
 import 'package:drone_app/theme.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:location/location.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'dart:js';
@@ -16,7 +18,6 @@ import 'package:flutter/material.dart';
 // import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 // import 'package:url_launcher/url_launcher.dart';
-import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -107,6 +108,8 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    getCurrentLocation();
+    getPolyPoints();
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadMapStyles();
@@ -147,23 +150,86 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
 
-  @override
-  Widget build(BuildContext context) {
-    return GoogleMap(
-      compassEnabled: false,
-      mapType: MapType.normal,
-      initialCameraPosition: _kGooglePlex,
-      onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
-        _setMapStyle();
-      },
-    );
+  static double sourceLat = 19.076090;
+  static double sourceLong = 72.877426;
+  static double destnLat = 19.076090 + 0.01;
+  static double destnLong = 72.877426 + 0.01;
+
+  List<LatLng> polylineCoordinates = [];
+  LocationData? currentLocation;
+
+  void getCurrentLocation() {
+    Location location = Location();
+
+    location.getLocation().then((value) {
+      currentLocation = value;
+    });
+
+    location.onLocationChanged.listen((newLoc) {
+      currentLocation = newLoc;
+
+      setState(() {});
+    });
   }
 
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+  void getPolyPoints() async {
+    PolylinePoints polylinePoints = PolylinePoints();
+
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      "AIzaSyCy1mIpoAJ42vr-nRAcBukxBUZNZqgR9J4",
+      PointLatLng(sourceLat, sourceLong),
+      PointLatLng(destnLat, destnLong),
+    );
+
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        print(point.latitude);
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+
+      setState(() {});
+    }
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return currentLocation == null
+        ? Center(
+            child: Container(
+                child: Text(
+            "Loading",
+            style: Theme.of(context).textTheme.displayMedium,
+          )))
+        : GoogleMap(
+            compassEnabled: false,
+            mapType: MapType.normal,
+            initialCameraPosition: _kGooglePlex,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+              _setMapStyle();
+            },
+            markers: {
+              Marker(
+                  markerId: MarkerId("current"),
+                  position: LatLng(
+                      currentLocation!.latitude!, currentLocation!.longitude!)),
+              Marker(
+                  markerId: MarkerId("source"),
+                  position: LatLng(sourceLat, sourceLong)),
+              Marker(
+                  markerId: MarkerId("desn"),
+                  position: LatLng(destnLat, destnLong)),
+            },
+            polylines: {
+              Polyline(
+                polylineId: PolylineId("route"),
+                points: polylineCoordinates,
+                color: Colors.white,
+              )
+            },
+          );
+  }
+
 }
 
 Color bc(int b) {
@@ -175,6 +241,39 @@ Color bc(int b) {
     return (Colors.orangeAccent);
   } else {
     return (Colors.redAccent);
+  }
+}
+
+class Temperature extends StatefulWidget {
+  const Temperature({super.key});
+
+  @override
+  State<Temperature> createState() => _TemperatureState();
+}
+
+class _TemperatureState extends State<Temperature> {
+  String displayTemp(int temp) {
+    final myBox = Hive.box('easyTheme');
+    bool unit = true;
+    String result = "";
+
+    if (myBox.containsKey('isCelsius')) {
+      unit = myBox.get('isCelsius');
+    } else {
+      myBox.put('isCelsius', true);
+    }
+
+    if (unit) {
+      result = "${temp + 32} F";
+    } else {
+      result = "$temp C";
+    }
+    return result;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(displayTemp(25));
   }
 }
 
@@ -196,6 +295,8 @@ class InfoPage extends StatelessWidget {
   static final i = Random().nextInt(l.length);
   static final face = l[i];
   static final bat = Random().nextInt(100);
+  static int temperature = 36;
+  static var tempUnit = "C";
 
   @override
   Widget build(BuildContext context) {
@@ -327,6 +428,12 @@ class InfoPage extends StatelessWidget {
                       height: MediaQuery.of(context).size.height / 5.5,
                       width: MediaQuery.of(context).size.width - 30,
                       decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black54,
+                                spreadRadius: 3,
+                                blurRadius: 15)
+                          ],
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.circular(15),
                           color:
@@ -351,7 +458,7 @@ class InfoPage extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Sensor Status",
+                                "Sensor Stats",
                                 style:
                                     Theme.of(context).textTheme.headlineSmall,
                               ),
@@ -364,7 +471,7 @@ class InfoPage extends StatelessWidget {
                                         .colorScheme
                                         .primaryContainer,
                                     child: Chip(
-                                      label: Text("36 C"),
+                                      label: Temperature(),
                                       avatar: Icon(Icons.thermostat_rounded),
                                     ),
                                   ),
@@ -430,142 +537,242 @@ class InfoPage extends StatelessWidget {
                       transform: Matrix4.translationValues(0, 18.0, 0.0),
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black54,
+                                spreadRadius: 5,
+                                blurRadius: 20)
+                          ],
                           color: Theme.of(context).colorScheme.primaryContainer,
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.all(
                             Radius.elliptical(69, 30),
                           )),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Stack(
                         children: [
                           Container(
-                            transform: Matrix4.translationValues(-25, 5.0, 0.0),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Theme.of(context).colorScheme.background,
-                            ),
+                            transform: Matrix4.translationValues(0, -5.0, 0.0),
                             height: MediaQuery.of(context).size.height / 5.5,
-                            width: MediaQuery.of(context).size.width / 2.5,
-                            child: SfRadialGauge(
-                              backgroundColor: Colors.transparent,
-                              // backgroundColor: Theme.of(context).colorScheme.background,
-                              enableLoadingAnimation: true,
-                              animationDuration: 3000,
-                              axes: [
-                                RadialAxis(
-                                  isInversed: true,
-                                  startAngle: 225,
-                                  annotations: <GaugeAnnotation>[
-                                    GaugeAnnotation(
-                                      angle: 120,
-                                      positionFactor: 0.5,
-                                      widget: Text(
-                                        '69',
-                                        style: TextStyle(
-                                          decoration: TextDecoration.none,
-                                          fontFamily: 'DIGI',
-                                          fontSize: 35,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  pointers: <GaugePointer>[
-                                    NeedlePointer(
-                                        value: 69,
-                                        needleStartWidth: 0.5,
-                                        needleEndWidth: 3,
-                                        knobStyle: KnobStyle(
-                                            knobRadius: 6,
-                                            sizeUnit:
-                                                GaugeSizeUnit.logicalPixel,
-                                            color: Colors.red))
-                                  ],
-                                  majorTickStyle: MajorTickStyle(
-                                    length: 0.1,
-                                    lengthUnit: GaugeSizeUnit.factor,
-                                    thickness: 1,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                  axisLineStyle: AxisLineStyle(
-                                    color: Colors.white,
-                                    cornerStyle: CornerStyle.bothCurve,
-                                    gradient: SweepGradient(
-                                        colors: <Color>[yellow, green, red],
-                                        stops: <double>[0.0, 0.5, 0.90]),
-                                  ),
-                                ),
-                              ],
+                            width: MediaQuery.of(context).size.width,
+                            alignment: Alignment.center,
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [
+                                  Colors.red,
+                                  Colors.yellow,
+                                  Colors.green
+                                ],
+                                stops: [0.1, 0.3, 0.5],
+                                tileMode: TileMode.mirror,
+                                transform: GradientRotation(-3.1412 / 2),
+                              ).createShader(bounds),
+                              child: Icon(
+                                Icons.battery_4_bar_rounded,
+                                size: 100,
+                                shadows: [
+                                  BoxShadow(
+                                      color: Colors.black54,
+                                      spreadRadius: 2,
+                                      blurRadius: 10)
+                                ],
+                              ),
                             ),
                           ),
-                          Container(
-                            transform: Matrix4.translationValues(
-                                MediaQuery.of(context).size.width * 0.07,
-                                5.0,
-                                0.0),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Theme.of(context).colorScheme.background,
-                            ),
-                            height: MediaQuery.of(context).size.height / 5.5,
-                            width: MediaQuery.of(context).size.width / 2.5,
-                            child: SfRadialGauge(
-                              backgroundColor: Colors.transparent,
-                              // backgroundColor: Theme.of(context).colorScheme.background,
-                              enableLoadingAnimation: true,
-                              animationDuration: 3000,
-                              axes: [
-                                RadialAxis(
-                                  startAngle: 130,
-                                  endAngle: 300,
-                                  annotations: <GaugeAnnotation>[
-                                    GaugeAnnotation(
-                                      angle: 60,
-                                      positionFactor: 0.5,
-                                      widget: Text(
-                                        '30',
-                                        style: TextStyle(
-                                          decoration: TextDecoration.none,
-                                          fontFamily: 'DIGI',
-                                          fontSize: 35,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                transform:
+                                    Matrix4.translationValues(-25, 5.0, 0.0),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black54,
+                                        spreadRadius: 3,
+                                        blurRadius: 15)
+                                  ],
+                                  color:
+                                      Theme.of(context).colorScheme.background,
+                                ),
+                                height:
+                                    MediaQuery.of(context).size.height / 5.5,
+                                width: MediaQuery.of(context).size.width / 2.5,
+                                child: SfRadialGauge(
+                                  backgroundColor: Colors.transparent,
+                                  // backgroundColor: Theme.of(context).colorScheme.background,
+                                  enableLoadingAnimation: true,
+                                  animationDuration: 3000,
+                                  axes: [
+                                    RadialAxis(
+                                      isInversed: true,
+                                      startAngle: 225,
+                                      annotations: <GaugeAnnotation>[
+                                        GaugeAnnotation(
+                                          angle: 120,
+                                          positionFactor: 0.5,
+                                          widget: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                '69',
+                                                style: TextStyle(
+                                                  decoration:
+                                                      TextDecoration.none,
+                                                  fontFamily: 'DIGI',
+                                                  fontSize: 25,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                ),
+                                              ),
+                                              Text(
+                                                'mph',
+                                                style: TextStyle(
+                                                  decoration:
+                                                      TextDecoration.none,
+                                                  fontFamily: 'DIGI',
+                                                  fontSize: 10,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
+                                      ],
+                                      pointers: <GaugePointer>[
+                                        NeedlePointer(
+                                            value: 69,
+                                            needleStartWidth: 0.5,
+                                            needleEndWidth: 3,
+                                            knobStyle: KnobStyle(
+                                                knobRadius: 6,
+                                                sizeUnit:
+                                                    GaugeSizeUnit.logicalPixel,
+                                                color: Colors.red))
+                                      ],
+                                      majorTickStyle: MajorTickStyle(
+                                        length: 0.1,
+                                        lengthUnit: GaugeSizeUnit.factor,
+                                        thickness: 1,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                      axisLineStyle: AxisLineStyle(
+                                        color: Colors.white,
+                                        cornerStyle: CornerStyle.bothCurve,
+                                        gradient: SweepGradient(
+                                            colors: <Color>[yellow, green, red],
+                                            stops: <double>[0.0, 0.5, 0.90]),
                                       ),
                                     ),
                                   ],
-                                  pointers: <GaugePointer>[
-                                    NeedlePointer(
-                                        value: 30,
-                                        needleStartWidth: 0.5,
-                                        needleEndWidth: 3,
-                                        knobStyle: KnobStyle(
-                                            knobRadius: 6,
-                                            sizeUnit:
-                                                GaugeSizeUnit.logicalPixel,
-                                            color: Colors.red))
-                                  ],
-                                  majorTickStyle: MajorTickStyle(
-                                    length: 0.1,
-                                    lengthUnit: GaugeSizeUnit.factor,
-                                    thickness: 1,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                  axisLineStyle: AxisLineStyle(
-                                    color: Colors.white,
-                                    cornerStyle: CornerStyle.bothCurve,
-                                    gradient: SweepGradient(
-                                        colors: <Color>[yellow, green, red],
-                                        stops: <double>[0.0, 0.5, 0.90]),
-                                  ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              Container(
+                                transform: Matrix4.translationValues(
+                                    MediaQuery.of(context).size.width * 0.07,
+                                    5.0,
+                                    0.0),
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black54,
+                                        spreadRadius: 3,
+                                        blurRadius: 15)
+                                  ],
+                                  shape: BoxShape.circle,
+                                  color:
+                                      Theme.of(context).colorScheme.background,
+                                ),
+                                height:
+                                    MediaQuery.of(context).size.height / 5.5,
+                                width: MediaQuery.of(context).size.width / 2.5,
+                                child: SfRadialGauge(
+                                  backgroundColor: Colors.transparent,
+                                  // backgroundColor: Theme.of(context).colorScheme.background,
+                                  enableLoadingAnimation: true,
+                                  animationDuration: 3000,
+                                  axes: [
+                                    RadialAxis(
+                                      maximum: 1000,
+                                      startAngle: 130,
+                                      endAngle: 300,
+                                      annotations: <GaugeAnnotation>[
+                                        GaugeAnnotation(
+                                          angle: 60,
+                                          positionFactor: 0.5,
+                                          widget: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                '150',
+                                                style: TextStyle(
+                                                  decoration:
+                                                      TextDecoration.none,
+                                                  fontFamily: 'DIGI',
+                                                  fontSize: 25,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                ),
+                                              ),
+                                              Text(
+                                                'ft',
+                                                style: TextStyle(
+                                                  decoration:
+                                                      TextDecoration.none,
+                                                  fontFamily: 'DIGI',
+                                                  fontSize: 10,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                      pointers: <GaugePointer>[
+                                        NeedlePointer(
+                                            value: 150,
+                                            needleStartWidth: 0.5,
+                                            needleEndWidth: 3,
+                                            knobStyle: KnobStyle(
+                                                knobRadius: 6,
+                                                sizeUnit:
+                                                    GaugeSizeUnit.logicalPixel,
+                                                color: Colors.red))
+                                      ],
+                                      majorTickStyle: MajorTickStyle(
+                                        length: 0.1,
+                                        lengthUnit: GaugeSizeUnit.factor,
+                                        thickness: 1,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                      axisLineStyle: AxisLineStyle(
+                                        color: Colors.white,
+                                        cornerStyle: CornerStyle.bothCurve,
+                                        gradient: SweepGradient(
+                                            colors: <Color>[yellow, green, red],
+                                            stops: <double>[0.0, 0.5, 0.90]),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
