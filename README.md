@@ -1,16 +1,12 @@
-# location_app
+# Drone Location Monitoring App
 
-An app to display the location of compatible drones in real time.
+An [WIP] app used to track drone location using Google Maps API written in Flutter (Dart). Also allows user to monitor various sensor info.
 
-## Getting Started
+### Build Requirements
 
-This project is a starting point for a Flutter application.
+Flutter and Dart environment installed
 
-A few resources to get you started if this is your first Flutter project:
+### Build Instructions
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Clone the repo
+Run "flutter pub get" & Build for your respective platform using "flutter run"
